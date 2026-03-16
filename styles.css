@@ -251,6 +251,17 @@ textarea {
   gap: 12px;
 }
 
+.upload-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
 .photo-thumb {
   position: relative;
   border-radius: 16px;

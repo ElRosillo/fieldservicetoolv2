@@ -276,10 +276,12 @@
               </div>
             </div>
 
-            <label>
-              Evidencia fotografica del servicio
-              <input id="servicePhotoInput" type="file" accept="image/*" multiple>
-            </label>
+            <div class="upload-actions">
+              <button id="servicePhotoGalleryButton" class="secondary-button" type="button">Elegir de galeria</button>
+              <button id="servicePhotoCameraButton" class="ghost-button" type="button">Tomar foto</button>
+            </div>
+            <input id="servicePhotoGalleryInput" class="file-input-hidden" type="file" accept="image/*" multiple>
+            <input id="servicePhotoCameraInput" class="file-input-hidden" type="file" accept="image/*" capture="environment" multiple>
 
             <div id="servicePhotoPreview" class="photo-preview large-preview"></div>
           </section>
@@ -317,10 +319,12 @@
             <textarea id="findingDescription" rows="6" placeholder="Describe con detalle la condicion observada, ubicacion exacta, riesgo y contexto" required></textarea>
           </label>
 
-          <label>
-            Evidencia fotografica
-            <input id="findingPhotoInput" type="file" accept="image/*" multiple>
-          </label>
+          <div class="upload-actions">
+            <button id="findingPhotoGalleryButton" class="secondary-button" type="button">Elegir de galeria</button>
+            <button id="findingPhotoCameraButton" class="ghost-button" type="button">Tomar foto</button>
+          </div>
+          <input id="findingPhotoGalleryInput" class="file-input-hidden" type="file" accept="image/*" multiple>
+          <input id="findingPhotoCameraInput" class="file-input-hidden" type="file" accept="image/*" capture="environment" multiple>
 
           <div id="findingPhotoPreview" class="photo-preview large-preview"></div>
         </form>
