@@ -87,7 +87,10 @@ const elements = {
   nextInspection: document.getElementById("nextInspection"),
   serviceSummary: document.getElementById("serviceSummary"),
   recommendations: document.getElementById("recommendations"),
-  servicePhotoInput: document.getElementById("servicePhotoInput"),
+  servicePhotoGalleryButton: document.getElementById("servicePhotoGalleryButton"),
+  servicePhotoCameraButton: document.getElementById("servicePhotoCameraButton"),
+  servicePhotoGalleryInput: document.getElementById("servicePhotoGalleryInput"),
+  servicePhotoCameraInput: document.getElementById("servicePhotoCameraInput"),
   servicePhotoPreview: document.getElementById("servicePhotoPreview"),
   cancelEquipmentButton: document.getElementById("cancelEquipmentButton"),
   saveEquipmentButton: document.getElementById("saveEquipmentButton"),
@@ -97,7 +100,10 @@ const elements = {
   findingCategory: document.getElementById("findingCategory"),
   findingIncidence: document.getElementById("findingIncidence"),
   findingDescription: document.getElementById("findingDescription"),
-  findingPhotoInput: document.getElementById("findingPhotoInput"),
+  findingPhotoGalleryButton: document.getElementById("findingPhotoGalleryButton"),
+  findingPhotoCameraButton: document.getElementById("findingPhotoCameraButton"),
+  findingPhotoGalleryInput: document.getElementById("findingPhotoGalleryInput"),
+  findingPhotoCameraInput: document.getElementById("findingPhotoCameraInput"),
   findingPhotoPreview: document.getElementById("findingPhotoPreview"),
   cancelFindingButton: document.getElementById("cancelFindingButton"),
   saveFindingButton: document.getElementById("saveFindingButton")
@@ -124,8 +130,14 @@ function setupAppActions() {
   elements.saveEquipmentButton.addEventListener("click", saveEquipmentFromEditor);
   elements.addFindingButton.addEventListener("click", () => openFindingEditor());
   elements.findingCategory.addEventListener("change", () => populateIncidenceOptions());
-  elements.findingPhotoInput.addEventListener("change", handleFindingPhotos);
-  elements.servicePhotoInput.addEventListener("change", handleServicePhotos);
+  elements.findingPhotoGalleryButton.addEventListener("click", () => elements.findingPhotoGalleryInput.click());
+  elements.findingPhotoCameraButton.addEventListener("click", () => elements.findingPhotoCameraInput.click());
+  elements.servicePhotoGalleryButton.addEventListener("click", () => elements.servicePhotoGalleryInput.click());
+  elements.servicePhotoCameraButton.addEventListener("click", () => elements.servicePhotoCameraInput.click());
+  elements.findingPhotoGalleryInput.addEventListener("change", handleFindingPhotos);
+  elements.findingPhotoCameraInput.addEventListener("change", handleFindingPhotos);
+  elements.servicePhotoGalleryInput.addEventListener("change", handleServicePhotos);
+  elements.servicePhotoCameraInput.addEventListener("change", handleServicePhotos);
   elements.cancelFindingButton.addEventListener("click", closeFindingEditor);
   elements.saveFindingButton.addEventListener("click", saveFindingFromEditor);
   elements.clearSignatureButton.addEventListener("click", clearSignature);
@@ -239,7 +251,8 @@ function openFindingEditor(findingId) {
   populateIncidenceOptions(finding ? finding.incidence : undefined);
   elements.findingDescription.value = finding ? finding.description : "";
   editingPhotos = finding ? finding.photos.slice() : [];
-  elements.findingPhotoInput.value = "";
+  elements.findingPhotoGalleryInput.value = "";
+  elements.findingPhotoCameraInput.value = "";
   renderEditingPhotos();
   showView("finding");
 }
@@ -267,7 +280,8 @@ async function handleFindingPhotos(event) {
 
   const encoded = await Promise.all(files.map(fileToDataUrl));
   editingPhotos = editingPhotos.concat(encoded);
-  elements.findingPhotoInput.value = "";
+  elements.findingPhotoGalleryInput.value = "";
+  elements.findingPhotoCameraInput.value = "";
   renderEditingPhotos();
 }
 
@@ -279,7 +293,8 @@ async function handleServicePhotos(event) {
 
   const encoded = await Promise.all(files.map(fileToDataUrl));
   currentEquipmentServicePhotos = currentEquipmentServicePhotos.concat(encoded);
-  elements.servicePhotoInput.value = "";
+  elements.servicePhotoGalleryInput.value = "";
+  elements.servicePhotoCameraInput.value = "";
   renderServicePhotos();
 }
 
