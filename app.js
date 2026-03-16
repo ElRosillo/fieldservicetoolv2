@@ -370,6 +370,8 @@ function renderFindingsList() {
   }
 
   currentEquipmentFindings.forEach((finding, index) => {
+    const shell = document.createElement("div");
+    shell.className = "list-card-shell";
     const card = document.createElement("button");
     card.type = "button";
     card.className = "finding-list-card";
@@ -382,7 +384,19 @@ function renderFindingsList() {
       <p>${escapeHtml(truncateText(finding.description, 140))}</p>
     `;
     card.addEventListener("click", () => openFindingEditor(finding.id));
-    elements.findingsList.appendChild(card);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "danger-button";
+    deleteButton.textContent = "Eliminar";
+    deleteButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteFinding(finding.id);
+    });
+
+    shell.appendChild(card);
+    shell.appendChild(deleteButton);
+    elements.findingsList.appendChild(shell);
   });
 }
 
@@ -437,6 +451,8 @@ function renderEquipmentList() {
 
   currentEquipments.forEach((equipment, index) => {
     const normalized = normalizeEquipment(equipment);
+    const shell = document.createElement("div");
+    shell.className = "list-card-shell";
     const card = document.createElement("button");
     card.type = "button";
     card.className = "finding-list-card";
@@ -450,8 +466,30 @@ function renderEquipmentList() {
       <p>${escapeHtml(buildEquipmentCardSummary(normalized))}</p>
     `;
     card.addEventListener("click", () => openEquipmentEditor(normalized.id));
-    elements.equipmentList.appendChild(card);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.className = "danger-button";
+    deleteButton.textContent = "Eliminar";
+    deleteButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteEquipment(normalized.id);
+    });
+
+    shell.appendChild(card);
+    shell.appendChild(deleteButton);
+    elements.equipmentList.appendChild(shell);
   });
+}
+
+function deleteFinding(findingId) {
+  currentEquipmentFindings = currentEquipmentFindings.filter((item) => item.id !== findingId);
+  renderFindingsList();
+}
+
+function deleteEquipment(equipmentId) {
+  currentEquipments = currentEquipments.filter((item) => item.id !== equipmentId);
+  renderEquipmentList();
 }
 
 function buildEquipmentCardSummary(equipment) {

@@ -222,6 +222,23 @@ textarea {
   transition: transform 0.16s ease, border-color 0.16s ease;
 }
 
+.list-card-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.danger-button {
+  border-radius: 16px;
+  padding: 10px 14px;
+  border: 1px solid #d89a9a;
+  background: #fff1f1;
+  color: #8a1f1f;
+  cursor: pointer;
+  min-width: 78px;
+}
+
 .finding-list-card:hover {
   transform: translateY(-1px);
   border-color: var(--brand);
