@@ -1,3 +1,4 @@
+
 function sanitizeFindingCatalog(source) {
   if (!source || typeof source !== "object") {
     return null;
@@ -18,6 +19,7 @@ function sanitizeFindingCatalog(source) {
 
   return Object.fromEntries(normalized.map((item) => [item.category, item.incidences]));
 }
+
 const DB_NAME = "crane-inspections-db";
 const DB_VERSION = 1;
 const STORE_NAME = "inspections";
@@ -29,7 +31,9 @@ const fallbackFindingCatalog = {
 const findingCatalog = sanitizeFindingCatalog(window.FINDING_CATALOG_CONFIG) || fallbackFindingCatalog;
 
 let deferredInstallPrompt = null;
-let currentFindings = [];
+let currentEquipments = [];
+let currentEquipmentFindings = [];
+let currentEquipmentServicePhotos = [];
 let editingPhotos = [];
 let signatureState = {
   drawing: false,
@@ -38,6 +42,7 @@ let signatureState = {
 
 const elements = {
   inspectionView: document.getElementById("inspectionView"),
+  equipmentEditorView: document.getElementById("equipmentEditorView"),
   findingEditorView: document.getElementById("findingEditorView"),
   form: document.getElementById("inspectionForm"),
   inspectionId: document.getElementById("inspectionId"),
@@ -49,17 +54,8 @@ const elements = {
   plantLocation: document.getElementById("plantLocation"),
   siteContact: document.getElementById("siteContact"),
   siteContactInfo: document.getElementById("siteContactInfo"),
-  craneType: document.getElementById("craneType"),
-  ratedCapacity: document.getElementById("ratedCapacity"),
-  brandModel: document.getElementById("brandModel"),
-  serialNumber: document.getElementById("serialNumber"),
-  spanLength: document.getElementById("spanLength"),
-  serviceClass: document.getElementById("serviceClass"),
-  findingsList: document.getElementById("findingsList"),
-  addFindingButton: document.getElementById("addFindingButton"),
-  overallCondition: document.getElementById("overallCondition"),
-  nextInspection: document.getElementById("nextInspection"),
-  recommendations: document.getElementById("recommendations"),
+  equipmentList: document.getElementById("equipmentList"),
+  addEquipmentButton: document.getElementById("addEquipmentButton"),
   receiverName: document.getElementById("receiverName"),
   signaturePad: document.getElementById("signaturePad"),
   clearSignatureButton: document.getElementById("clearSignatureButton"),
@@ -70,6 +66,31 @@ const elements = {
   refreshReportsButton: document.getElementById("refreshReportsButton"),
   connectionStatus: document.getElementById("connectionStatus"),
   installButton: document.getElementById("installButton"),
+  equipmentEditorTitle: document.getElementById("equipmentEditorTitle"),
+  equipmentEditorForm: document.getElementById("equipmentEditorForm"),
+  editingEquipmentId: document.getElementById("editingEquipmentId"),
+  equipmentName: document.getElementById("equipmentName"),
+  craneType: document.getElementById("craneType"),
+  ratedCapacity: document.getElementById("ratedCapacity"),
+  brandModel: document.getElementById("brandModel"),
+  serialNumber: document.getElementById("serialNumber"),
+  spanLength: document.getElementById("spanLength"),
+  serviceClass: document.getElementById("serviceClass"),
+  equipmentLocation: document.getElementById("equipmentLocation"),
+  hoistType: document.getElementById("hoistType"),
+  hoistCapacity: document.getElementById("hoistCapacity"),
+  hoistBrandModel: document.getElementById("hoistBrandModel"),
+  hoistSerialNumber: document.getElementById("hoistSerialNumber"),
+  findingsList: document.getElementById("findingsList"),
+  addFindingButton: document.getElementById("addFindingButton"),
+  overallCondition: document.getElementById("overallCondition"),
+  nextInspection: document.getElementById("nextInspection"),
+  serviceSummary: document.getElementById("serviceSummary"),
+  recommendations: document.getElementById("recommendations"),
+  servicePhotoInput: document.getElementById("servicePhotoInput"),
+  servicePhotoPreview: document.getElementById("servicePhotoPreview"),
+  cancelEquipmentButton: document.getElementById("cancelEquipmentButton"),
+  saveEquipmentButton: document.getElementById("saveEquipmentButton"),
   findingEditorTitle: document.getElementById("findingEditorTitle"),
   findingEditorForm: document.getElementById("findingEditorForm"),
   editingFindingId: document.getElementById("editingFindingId"),
@@ -90,16 +111,21 @@ async function initializeApp() {
   setupAppActions();
   setDefaultDates();
   assignNewReportNumber(true);
-  renderFindingsList();
+  resetEquipmentEditorState();
+  renderEquipmentList();
   await renderSavedReports();
   updateConnectivityStatus();
   registerServiceWorker();
 }
 
 function setupAppActions() {
+  elements.addEquipmentButton.addEventListener("click", () => openEquipmentEditor());
+  elements.cancelEquipmentButton.addEventListener("click", closeEquipmentEditor);
+  elements.saveEquipmentButton.addEventListener("click", saveEquipmentFromEditor);
   elements.addFindingButton.addEventListener("click", () => openFindingEditor());
   elements.findingCategory.addEventListener("change", () => populateIncidenceOptions());
   elements.findingPhotoInput.addEventListener("change", handleFindingPhotos);
+  elements.servicePhotoInput.addEventListener("change", handleServicePhotos);
   elements.cancelFindingButton.addEventListener("click", closeFindingEditor);
   elements.saveFindingButton.addEventListener("click", saveFindingFromEditor);
   elements.clearSignatureButton.addEventListener("click", clearSignature);
@@ -129,8 +155,9 @@ function setupAppActions() {
 }
 
 function populateCategoryOptions() {
-  elements.findingCategory.innerHTML = Object.keys(findingCatalog)
-    .map((category) => `<option value="${category}">${category}</option>`)
+  const categories = Object.keys(findingCatalog);
+  elements.findingCategory.innerHTML = categories
+    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
     .join("");
   populateIncidenceOptions();
 }
@@ -139,19 +166,76 @@ function populateIncidenceOptions(selectedIncidence) {
   const category = elements.findingCategory.value || Object.keys(findingCatalog)[0];
   const incidences = findingCatalog[category] || [];
   elements.findingIncidence.innerHTML = incidences
-    .map((incidence) => `<option value="${incidence}">${incidence}</option>`)
+    .map((incidence) => `<option value="${escapeHtml(incidence)}">${escapeHtml(incidence)}</option>`)
     .join("");
 
-  if (selectedIncidence && incidences.indexOf(selectedIncidence) >= 0) {
+  if (selectedIncidence && incidences.includes(selectedIncidence)) {
     elements.findingIncidence.value = selectedIncidence;
   }
 }
 
+function openEquipmentEditor(equipmentId) {
+  const equipment = currentEquipments.find((item) => item.id === equipmentId);
+  const normalized = equipment ? normalizeEquipment(equipment) : createEmptyEquipment();
+
+  elements.equipmentEditorTitle.textContent = equipment ? "Editar equipo" : "Nuevo equipo";
+  elements.editingEquipmentId.value = equipment ? equipment.id : "";
+  loadEquipmentIntoEditor(normalized);
+  showView("equipment");
+}
+
+function loadEquipmentIntoEditor(equipment) {
+  elements.equipmentEditorForm.reset();
+  elements.equipmentName.value = equipment.equipmentName;
+  elements.craneType.value = equipment.craneType;
+  elements.ratedCapacity.value = equipment.ratedCapacity;
+  elements.brandModel.value = equipment.brandModel;
+  elements.serialNumber.value = equipment.serialNumber;
+  elements.spanLength.value = equipment.spanLength;
+  elements.serviceClass.value = equipment.serviceClass;
+  elements.equipmentLocation.value = equipment.equipmentLocation;
+  elements.hoistType.value = equipment.hoistType;
+  elements.hoistCapacity.value = equipment.hoistCapacity;
+  elements.hoistBrandModel.value = equipment.hoistBrandModel;
+  elements.hoistSerialNumber.value = equipment.hoistSerialNumber;
+  elements.overallCondition.value = equipment.overallCondition;
+  elements.nextInspection.value = equipment.nextInspection;
+  elements.serviceSummary.value = equipment.serviceSummary;
+  elements.recommendations.value = equipment.recommendations;
+  currentEquipmentFindings = equipment.findings.slice();
+  currentEquipmentServicePhotos = equipment.servicePhotos.slice();
+  renderFindingsList();
+  renderServicePhotos();
+}
+
+function closeEquipmentEditor() {
+  resetEquipmentEditorState();
+  showView("inspection");
+}
+
+function resetEquipmentEditorState() {
+  elements.equipmentEditorForm.reset();
+  elements.editingEquipmentId.value = "";
+  currentEquipmentFindings = [];
+  currentEquipmentServicePhotos = [];
+  const nextDate = new Date();
+  nextDate.setMonth(nextDate.getMonth() + 6);
+  elements.overallCondition.value = "Bueno";
+  elements.nextInspection.value = nextDate.toISOString().slice(0, 10);
+  renderFindingsList();
+  renderServicePhotos();
+}
 function openFindingEditor(findingId) {
-  const finding = currentFindings.find((item) => item.id === findingId);
+  const categories = Object.keys(findingCatalog);
+  if (!categories.length) {
+    window.alert("No hay categorias de hallazgo configuradas.");
+    return;
+  }
+
+  const finding = currentEquipmentFindings.find((item) => item.id === findingId);
   elements.findingEditorTitle.textContent = finding ? "Editar hallazgo" : "Nuevo hallazgo";
   elements.editingFindingId.value = finding ? finding.id : "";
-  elements.findingCategory.value = finding ? finding.category : Object.keys(findingCatalog)[0];
+  elements.findingCategory.value = finding ? finding.category : categories[0];
   populateIncidenceOptions(finding ? finding.incidence : undefined);
   elements.findingDescription.value = finding ? finding.description : "";
   editingPhotos = finding ? finding.photos.slice() : [];
@@ -166,13 +250,13 @@ function closeFindingEditor() {
   editingPhotos = [];
   populateCategoryOptions();
   renderEditingPhotos();
-  showView("inspection");
+  showView("equipment");
 }
 
 function showView(view) {
-  const showFinding = view === "finding";
-  elements.inspectionView.classList.toggle("hidden", showFinding);
-  elements.findingEditorView.classList.toggle("hidden", !showFinding);
+  elements.inspectionView.classList.toggle("hidden", view !== "inspection");
+  elements.equipmentEditorView.classList.toggle("hidden", view !== "equipment");
+  elements.findingEditorView.classList.toggle("hidden", view !== "finding");
 }
 
 async function handleFindingPhotos(event) {
@@ -187,27 +271,52 @@ async function handleFindingPhotos(event) {
   renderEditingPhotos();
 }
 
+async function handleServicePhotos(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) {
+    return;
+  }
+
+  const encoded = await Promise.all(files.map(fileToDataUrl));
+  currentEquipmentServicePhotos = currentEquipmentServicePhotos.concat(encoded);
+  elements.servicePhotoInput.value = "";
+  renderServicePhotos();
+}
+
 function renderEditingPhotos() {
   elements.findingPhotoPreview.innerHTML = "";
-
   editingPhotos.forEach((photo, index) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "photo-thumb";
-    const img = document.createElement("img");
-    img.src = photo;
-    img.alt = "Evidencia del hallazgo";
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.className = "photo-remove";
-    removeButton.textContent = "x";
-    removeButton.addEventListener("click", () => {
+    elements.findingPhotoPreview.appendChild(buildPhotoThumb(photo, () => {
       editingPhotos = editingPhotos.filter((_, photoIndex) => photoIndex !== index);
       renderEditingPhotos();
-    });
-    wrapper.appendChild(img);
-    wrapper.appendChild(removeButton);
-    elements.findingPhotoPreview.appendChild(wrapper);
+    }));
   });
+}
+
+function renderServicePhotos() {
+  elements.servicePhotoPreview.innerHTML = "";
+  currentEquipmentServicePhotos.forEach((photo, index) => {
+    elements.servicePhotoPreview.appendChild(buildPhotoThumb(photo, () => {
+      currentEquipmentServicePhotos = currentEquipmentServicePhotos.filter((_, photoIndex) => photoIndex !== index);
+      renderServicePhotos();
+    }));
+  });
+}
+
+function buildPhotoThumb(photo, onRemove) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "photo-thumb";
+  const img = document.createElement("img");
+  img.src = photo;
+  img.alt = "Evidencia fotografica";
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "photo-remove";
+  removeButton.textContent = "x";
+  removeButton.addEventListener("click", onRemove);
+  wrapper.appendChild(img);
+  wrapper.appendChild(removeButton);
+  return wrapper;
 }
 
 function saveFindingFromEditor() {
@@ -226,11 +335,11 @@ function saveFindingFromEditor() {
     updatedAt: new Date().toISOString()
   };
 
-  const existingIndex = currentFindings.findIndex((item) => item.id === findingId);
+  const existingIndex = currentEquipmentFindings.findIndex((item) => item.id === findingId);
   if (existingIndex >= 0) {
-    currentFindings[existingIndex] = finding;
+    currentEquipmentFindings[existingIndex] = finding;
   } else {
-    currentFindings.push(finding);
+    currentEquipmentFindings.push(finding);
   }
 
   renderFindingsList();
@@ -240,12 +349,12 @@ function saveFindingFromEditor() {
 function renderFindingsList() {
   elements.findingsList.innerHTML = "";
 
-  if (!currentFindings.length) {
-    elements.findingsList.innerHTML = '<div class="inline-empty-state">Todavia no hay hallazgos capturados. Usa el boton de Anadir Hallazgo para registrar uno.</div>';
+  if (!currentEquipmentFindings.length) {
+    elements.findingsList.innerHTML = '<div class="inline-empty-state">Todavia no hay hallazgos capturados para este equipo. Usa el boton de Anadir Hallazgo para registrar uno.</div>';
     return;
   }
 
-  currentFindings.forEach((finding, index) => {
+  currentEquipmentFindings.forEach((finding, index) => {
     const card = document.createElement("button");
     card.type = "button";
     card.className = "finding-list-card";
@@ -253,7 +362,7 @@ function renderFindingsList() {
       <p><strong>Hallazgo ${index + 1}: ${escapeHtml(finding.category)}</strong></p>
       <div class="finding-meta">
         <span>${escapeHtml(finding.incidence)}</span>
-        <span>${finding.photos.length} foto(s)</span>
+        <span>${(finding.photos || []).length} foto(s)</span>
       </div>
       <p>${escapeHtml(truncateText(finding.description, 140))}</p>
     `;
@@ -262,17 +371,89 @@ function renderFindingsList() {
   });
 }
 
-function setDefaultDates() {
-  const today = new Date();
-  const isoDate = today.toISOString().slice(0, 10);
-  elements.inspectionDate.value = isoDate;
+function saveEquipmentFromEditor() {
+  if (!elements.equipmentEditorForm.reportValidity()) {
+    elements.equipmentEditorForm.reportValidity();
+    return;
+  }
 
-  const nextDate = new Date(today);
-  nextDate.setMonth(nextDate.getMonth() + 6);
-  elements.nextInspection.value = nextDate.toISOString().slice(0, 10);
+  const equipmentId = elements.editingEquipmentId.value || createId();
+  const equipment = normalizeEquipment({
+    id: equipmentId,
+    equipmentName: elements.equipmentName.value.trim(),
+    craneType: elements.craneType.value,
+    ratedCapacity: elements.ratedCapacity.value.trim(),
+    brandModel: elements.brandModel.value.trim(),
+    serialNumber: elements.serialNumber.value.trim(),
+    spanLength: elements.spanLength.value.trim(),
+    serviceClass: elements.serviceClass.value.trim(),
+    equipmentLocation: elements.equipmentLocation.value.trim(),
+    hoistType: elements.hoistType.value.trim(),
+    hoistCapacity: elements.hoistCapacity.value.trim(),
+    hoistBrandModel: elements.hoistBrandModel.value.trim(),
+    hoistSerialNumber: elements.hoistSerialNumber.value.trim(),
+    findings: currentEquipmentFindings.slice(),
+    overallCondition: elements.overallCondition.value,
+    nextInspection: elements.nextInspection.value,
+    serviceSummary: elements.serviceSummary.value.trim(),
+    recommendations: elements.recommendations.value.trim(),
+    servicePhotos: currentEquipmentServicePhotos.slice(),
+    updatedAt: new Date().toISOString()
+  });
+
+  const existingIndex = currentEquipments.findIndex((item) => item.id === equipmentId);
+  if (existingIndex >= 0) {
+    currentEquipments[existingIndex] = equipment;
+  } else {
+    currentEquipments.push(equipment);
+  }
+
+  renderEquipmentList();
+  closeEquipmentEditor();
 }
 
-function assignNewReportNumber(force = false) {
+function renderEquipmentList() {
+  elements.equipmentList.innerHTML = "";
+
+  if (!currentEquipments.length) {
+    elements.equipmentList.innerHTML = '<div class="inline-empty-state">Todavia no hay equipos en este reporte. Usa el boton de Anadir Equipo para registrar el primero.</div>';
+    return;
+  }
+
+  currentEquipments.forEach((equipment, index) => {
+    const normalized = normalizeEquipment(equipment);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "finding-list-card";
+    card.innerHTML = `
+      <p><strong>Equipo ${index + 1}: ${escapeHtml(normalized.equipmentName || normalized.craneType || "Equipo sin nombre")}</strong></p>
+      <div class="finding-meta">
+        <span>${escapeHtml(normalized.craneType || "Tipo no capturado")}</span>
+        <span>${normalized.findings.length} hallazgo(s)</span>
+        <span>${normalized.servicePhotos.length} evidencia(s)</span>
+      </div>
+      <p>${escapeHtml(buildEquipmentCardSummary(normalized))}</p>
+    `;
+    card.addEventListener("click", () => openEquipmentEditor(normalized.id));
+    elements.equipmentList.appendChild(card);
+  });
+}
+
+function buildEquipmentCardSummary(equipment) {
+  const pieces = [
+    equipment.brandModel,
+    equipment.serialNumber ? `Serie ${equipment.serialNumber}` : "",
+    equipment.overallCondition
+  ].filter(Boolean);
+  return pieces.length ? pieces.join(" | ") : "Sin detalle adicional capturado.";
+}
+
+function setDefaultDates() {
+  const today = new Date();
+  elements.inspectionDate.value = today.toISOString().slice(0, 10);
+}
+
+function assignNewReportNumber(force) {
   if (!force && elements.reportNumber.value.trim()) {
     return;
   }
@@ -284,7 +465,6 @@ function updateConnectivityStatus() {
     ? "Con conexion. Los datos siguen guardandose localmente."
     : "Sin conexion. Puedes seguir trabajando offline.";
 }
-
 function collectInspectionData() {
   return {
     id: elements.inspectionId.value || createId(),
@@ -296,16 +476,7 @@ function collectInspectionData() {
     plantLocation: elements.plantLocation.value.trim(),
     siteContact: elements.siteContact.value.trim(),
     siteContactInfo: elements.siteContactInfo.value.trim(),
-    craneType: elements.craneType.value,
-    ratedCapacity: elements.ratedCapacity.value.trim(),
-    brandModel: elements.brandModel.value.trim(),
-    serialNumber: elements.serialNumber.value.trim(),
-    spanLength: elements.spanLength.value.trim(),
-    serviceClass: elements.serviceClass.value.trim(),
-    findings: currentFindings,
-    overallCondition: elements.overallCondition.value,
-    nextInspection: elements.nextInspection.value,
-    recommendations: elements.recommendations.value.trim(),
+    equipments: currentEquipments.map((equipment) => normalizeEquipment(equipment)),
     receiverName: elements.receiverName.value.trim(),
     signatureDataUrl: signatureState.hasSignature ? elements.signaturePad.toDataURL("image/png") : "",
     updatedAt: new Date().toISOString()
@@ -315,6 +486,11 @@ function collectInspectionData() {
 async function persistInspection() {
   if (!elements.form.reportValidity()) {
     elements.form.reportValidity();
+    return null;
+  }
+
+  if (!currentEquipments.length) {
+    window.alert("Agrega al menos un equipo antes de guardar o generar el reporte.");
     return null;
   }
 
@@ -333,7 +509,7 @@ async function generatePdfReport() {
     return;
   }
 
-  popup.document.write("<p style=\"font-family: Arial, sans-serif; padding: 24px;\">Generando reporte PDF...</p>");
+  popup.document.write('<p style="font-family: Arial, sans-serif; padding: 24px;">Generando reporte PDF...</p>');
   popup.document.close();
 
   const inspection = await persistInspection();
@@ -341,6 +517,7 @@ async function generatePdfReport() {
     popup.close();
     return;
   }
+
   openReportPdfWindow(inspection, popup);
 }
 
@@ -354,18 +531,18 @@ async function renderSavedReports() {
   }
 
   records
+    .map(normalizeInspection)
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
     .forEach((record) => {
-      const normalized = normalizeInspection(record);
       const card = document.createElement("article");
       card.className = "saved-card";
       card.innerHTML = `
-        <p><strong>${escapeHtml(normalized.plantName || "Cliente sin nombre")}</strong></p>
-        <p>${escapeHtml(normalized.reportNumber)} | ${escapeHtml(normalized.inspectionDate || "")}</p>
-        <p>${escapeHtml(normalized.serviceType || "Servicio")} | ${escapeHtml(normalized.overallCondition || "Pendiente")}</p>
+        <p><strong>${escapeHtml(record.plantName || "Cliente sin nombre")}</strong></p>
+        <p>${escapeHtml(record.reportNumber)} | ${escapeHtml(record.inspectionDate || "")}</p>
+        <p>${escapeHtml(record.serviceType || "Servicio")} | ${record.equipments.length} equipo(s)</p>
         <div class="saved-actions">
-          <button class="secondary-button" type="button" data-open-id="${normalized.id}">Abrir</button>
-          <button class="ghost-button" type="button" data-delete-id="${normalized.id}">Eliminar</button>
+          <button class="secondary-button" type="button" data-open-id="${record.id}">Abrir</button>
+          <button class="ghost-button" type="button" data-delete-id="${record.id}">Eliminar</button>
         </div>
       `;
       elements.savedReports.appendChild(card);
@@ -393,7 +570,7 @@ async function renderSavedReports() {
 
 function loadInspection(record) {
   const normalized = normalizeInspection(record);
-  closeFindingEditor();
+  resetEquipmentEditorState();
   elements.form.reset();
 
   elements.inspectionId.value = normalized.id || "";
@@ -405,45 +582,123 @@ function loadInspection(record) {
   elements.plantLocation.value = normalized.plantLocation || "";
   elements.siteContact.value = normalized.siteContact || "";
   elements.siteContactInfo.value = normalized.siteContactInfo || "";
-  elements.craneType.value = normalized.craneType || "Puente";
-  elements.ratedCapacity.value = normalized.ratedCapacity || "";
-  elements.brandModel.value = normalized.brandModel || "";
-  elements.serialNumber.value = normalized.serialNumber || "";
-  elements.spanLength.value = normalized.spanLength || "";
-  elements.serviceClass.value = normalized.serviceClass || "";
-  elements.overallCondition.value = normalized.overallCondition || "Aprobada";
-  elements.nextInspection.value = normalized.nextInspection || "";
-  elements.recommendations.value = normalized.recommendations || "";
-  elements.receiverName.value = normalized.receiverName || "";`r`ncurrentFindings = Array.isArray(normalized.findings) ? normalized.findings : [];
-  renderFindingsList();
+  elements.receiverName.value = normalized.receiverName || "";
+  currentEquipments = normalized.equipments.map((equipment) => normalizeEquipment(equipment));
+  renderEquipmentList();
 
   if (normalized.signatureDataUrl) {
     drawSignatureImage(normalized.signatureDataUrl);
   } else {
     clearSignature();
   }
+
+  showView("inspection");
 }
 
 function resetForm() {
-  closeFindingEditor();
   elements.form.reset();
   elements.inspectionId.value = "";
-  currentFindings = [];
-  clearSignature();`r`nsetDefaultDates();
+  currentEquipments = [];
+  clearSignature();
+  setDefaultDates();
   assignNewReportNumber(true);
   elements.serviceType.value = "Inspeccion de grua";
-  renderFindingsList();
+  resetEquipmentEditorState();
+  renderEquipmentList();
+  showView("inspection");
 }
 
 function normalizeInspection(record) {
+  const source = record || {};
+  const equipments = Array.isArray(source.equipments) && source.equipments.length
+    ? source.equipments.map((equipment) => normalizeEquipment(equipment))
+    : source.craneType || source.findings || source.recommendations
+      ? [normalizeEquipment(createLegacyEquipment(source))]
+      : [];
+
   return {
-    ...record,
-    reportNumber: record.reportNumber || createReportNumber(record.inspectionDate, record.id),
-    serviceType: record.serviceType || "Inspeccion de grua",
-    findings: Array.isArray(record.findings) ? record.findings : []
+    ...source,
+    reportNumber: source.reportNumber || createReportNumber(source.inspectionDate, source.id),
+    serviceType: source.serviceType || "Inspeccion de grua",
+    equipments
   };
 }
 
+function createLegacyEquipment(record) {
+  return {
+    id: createId(),
+    equipmentName: record.craneType ? `Equipo ${record.craneType}` : "Equipo 1",
+    craneType: record.craneType || "Puente",
+    ratedCapacity: record.ratedCapacity || "",
+    brandModel: record.brandModel || "",
+    serialNumber: record.serialNumber || "",
+    spanLength: record.spanLength || "",
+    serviceClass: record.serviceClass || "",
+    equipmentLocation: "",
+    hoistType: "",
+    hoistCapacity: "",
+    hoistBrandModel: "",
+    hoistSerialNumber: "",
+    findings: Array.isArray(record.findings) ? record.findings : [],
+    overallCondition: record.overallCondition || "Bueno",
+    nextInspection: record.nextInspection || "",
+    serviceSummary: "",
+    recommendations: record.recommendations || "",
+    servicePhotos: []
+  };
+}
+
+function createEmptyEquipment() {
+  const nextDate = new Date();
+  nextDate.setMonth(nextDate.getMonth() + 6);
+  return normalizeEquipment({
+    id: "",
+    equipmentName: "",
+    craneType: "Puente",
+    ratedCapacity: "",
+    brandModel: "",
+    serialNumber: "",
+    spanLength: "",
+    serviceClass: "",
+    equipmentLocation: "",
+    hoistType: "",
+    hoistCapacity: "",
+    hoistBrandModel: "",
+    hoistSerialNumber: "",
+    findings: [],
+    overallCondition: "Bueno",
+    nextInspection: nextDate.toISOString().slice(0, 10),
+    serviceSummary: "",
+    recommendations: "",
+    servicePhotos: []
+  });
+}
+
+function normalizeEquipment(equipment) {
+  const source = equipment || {};
+  return {
+    ...source,
+    id: source.id || createId(),
+    equipmentName: source.equipmentName || "",
+    craneType: source.craneType || "Puente",
+    ratedCapacity: source.ratedCapacity || "",
+    brandModel: source.brandModel || "",
+    serialNumber: source.serialNumber || "",
+    spanLength: source.spanLength || "",
+    serviceClass: source.serviceClass || "",
+    equipmentLocation: source.equipmentLocation || "",
+    hoistType: source.hoistType || "",
+    hoistCapacity: source.hoistCapacity || "",
+    hoistBrandModel: source.hoistBrandModel || "",
+    hoistSerialNumber: source.hoistSerialNumber || "",
+    findings: Array.isArray(source.findings) ? source.findings : [],
+    overallCondition: source.overallCondition || "Bueno",
+    nextInspection: source.nextInspection || "",
+    serviceSummary: source.serviceSummary || "",
+    recommendations: source.recommendations || "",
+    servicePhotos: Array.isArray(source.servicePhotos) ? source.servicePhotos : []
+  };
+}
 function setupSignaturePad() {
   const canvas = elements.signaturePad;
   const context = canvas.getContext("2d");
@@ -619,22 +874,10 @@ function truncateText(value, maxLength) {
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value || "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
-
-
-
-
-
-
-
-
-
-
-

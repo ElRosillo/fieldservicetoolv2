@@ -1,150 +1,150 @@
 window.FINDING_CATALOG_CONFIG = {
   "Registros del equipo": [
-    "Inspeccion diaria",
-    "Programa de mantenimiento",
-    "Ultimo mantenimiento"
+    "Inspeccion diaria - OSHA 1910.179(j)(2) - Frequent inspection, ASME B30.2-2.1.2",
+    "Programa de mantenimiento - OSHA 1910.179(l), CMAA 70 - Section 5.2",
+    "Ultimo mantenimiento - OSHA 1910.179(l)(3), ASME B30.2-2.6.7"
   ],
-  "Aparejo Inferior": [
-    "Apertura de gancho de carga",
-    "Pestillo de seguridad",
-    "Balero axial giro/lubricacion",
-    "Poleas de aparejo inferior",
-    "Pernos de aparejo inferior",
-    "Guardas de aparejo inferior",
-    "Tornilleria de aparejo inferior",
-    "Candados de pernos",
-    "Etiqueta de capacidad"
+  "Aparejo inferior": [
+    "Apertura de gancho de carga - ASME B30.10-1.10.5, OSHA 1910.179(j)(2)(i)",
+    "Pestillo de seguridad - ASME B30.10-1.10.5(d)",
+    "Balero axial giro/lubricacion - CMAA 70 Section 5.2.2.2",
+    "Poleas de aparejo inferior - ASME B30.2-2.2.2",
+    "Pernos de aparejo inferior - ASME B30.2-2.2.1",
+    "Guardas de aparejo inferior - OSHA 1910.179(e)",
+    "Tornilleria de aparejo inferior - CMAA 70 Section 5.2.3",
+    "Candados de pernos - ASME B30.2-2.2.1",
+    "Etiqueta de capacidad - OSHA 1910.179(b)(5)"
   ],
-  "Cable de Carga Principal": [
-    "Diametro",
-    "Caidas",
-    "Lubricacion",
-    "Deformacion y/o cocas",
-    "Hilos y torones",
-    "Casquillos y puntas",
-    "Punto fijo"
+  "Cable de carga principal": [
+    "Diametro - ASME B30.2-2.4.2",
+    "Caidas - CMAA 70 Section 4.13",
+    "Lubricacion - CMAA 70 Section 5.2.6",
+    "Deformacion y/o cocas - ASME B30.2-2.4.3",
+    "Hilos y torones - OSHA 1910.179(j)(2)(ii)",
+    "Casquillos y puntas - ASME B30.2-2.4.2(e)",
+    "Punto fijo - ASME B30.2-2.4.2(f)"
   ],
-  "Cable de Carga Auxiliar": [
-    "Diametro",
-    "Caidas",
-    "Lubricacion",
-    "Deformacion y/o cocas",
-    "Hilos y torones",
-    "Casquillos y puntas",
-    "Punto fijo"
+  "Cable de carga auxiliar": [
+    "Diametro - ASME B30.2-2.4.2",
+    "Caidas - CMAA 70 Section 4.13",
+    "Lubricacion - CMAA 70 Section 5.2.6",
+    "Deformacion y/o cocas - ASME B30.2-2.4.3",
+    "Hilos y torones - OSHA 1910.179(j)(2)(ii)",
+    "Casquillos y puntas - ASME B30.2-2.4.2(e)",
+    "Punto fijo - ASME B30.2-2.4.2(f)"
   ],
-  "Aparejo Superior": [
-    "Poleas de aparejo superior",
-    "Polea igualadora (reenvio)",
-    "Pernos de aparejo superior",
-    "Guardas de aparejo superior",
-    "Tornilleria de aparejo superior",
-    "Candados de pernos"
+  "Aparejo superior": [
+    "Poleas de aparejo superior - ASME B30.2-2.2.2",
+    "Polea igualadora (reenvio) - ASME B30.2-2.2.2",
+    "Pernos de aparejo superior - ASME B30.2-2.2.1",
+    "Guardas de aparejo superior - OSHA 1910.179(e)",
+    "Tornilleria de aparejo superior - CMAA 70 Section 5.2.3",
+    "Candados de pernos - ASME B30.2-2.2.1"
   ],
-  "Sistema Electrico de Carro": [
-    "Freno electromagnetico",
-    "Motor electrico",
-    "Contactores",
-    "Variador de velocidad",
-    "Resistencia de frenado dinamico",
-    "Limit switch y levas"
+  "Sistema electrico de carro": [
+    "Freno electromagnetico - OSHA 1910.179(f)(4), ASME B30.2-1.7.2",
+    "Motor electrico - OSHA 1910.179(g)(1)",
+    "Contactores - NFPA 70 Article 430",
+    "Variador de velocidad - ASME B30.2-1.13",
+    "Resistencia de frenado dinamico - CMAA 70 Section 4.10.3",
+    "Limit switch y levas - OSHA 1910.179(g)(5)"
   ],
-  "Sistema Mecanico de Carro": [
-    "Riel",
-    "Topes mecanicos y de hule",
-    "Ruedas motrices y giratorias",
-    "Flechas y chumaceras",
-    "Reductor (caja de engranes)",
-    "Pinon",
-    "Nivel de aceite de reductor",
-    "Espesor de balatas",
-    "Ajuste de freno",
-    "Tornilleria"
+  "Sistema mecanico de carro": [
+    "Riel - CMAA 70 Section 3.2",
+    "Topes mecanicos y de hule - OSHA 1910.179(e)(2)",
+    "Ruedas motrices y giratorias - CMAA 70 Section 5.2.4",
+    "Flechas y chumaceras - CMAA 70 Section 5.2.2",
+    "Reductor (caja de engranes) - CMAA 70 Section 5.2.5",
+    "Pinon - CMAA 70 Section 5.2.5.1",
+    "Nivel de aceite de reductor - CMAA 70 Section 5.2.5.2",
+    "Espesor de balatas - OSHA 1910.179(f)(4)",
+    "Ajuste de freno - ASME B30.2-1.7.2",
+    "Tornilleria - CMAA 70 Section 5.2.3"
   ],
-  "Sistema Mecanico de Izaje": [
-    "Tambor",
-    "Polea de carga",
-    "Guia de cables",
-    "Nivel de aceite de reductor",
-    "Soldadura de marco",
-    "Baleros",
-    "Chumaceras y flechas",
-    "Balatas",
-    "Ajuste de freno",
-    "Tornilleria"
+  "Sistema mecanico de izaje": [
+    "Tambor - ASME B30.2-1.6.2",
+    "Polea de carga - ASME B30.2-2.2.2",
+    "Guia de cables - CMAA 70 Section 4.13.3",
+    "Nivel de aceite de reductor - CMAA 70 Section 5.2.5.2",
+    "Soldadura de marco - CMAA 70 Section 3.3",
+    "Baleros - CMAA 70 Section 5.2.2",
+    "Chumaceras y flechas - CMAA 70 Section 5.2.2",
+    "Balatas - OSHA 1910.179(f)(4)",
+    "Ajuste de freno - ASME B30.2-1.7.2",
+    "Tornilleria - CMAA 70 Section 5.2.3"
   ],
-  "Sistema Electrico de Izaje": [
-    "Freno electromagnetico",
-    "Motor electrico",
-    "Contactores",
-    "Variador de velocidad",
-    "Resistencia de frenado dinamico",
-    "Gabinete de control electrico",
-    "Limit switch y levas",
-    "Sensores de sobrecarga"
+  "Sistema electrico de izaje": [
+    "Freno electromagnetico - OSHA 1910.179(f)(4)",
+    "Motor electrico - OSHA 1910.179(g)(1)",
+    "Contactores - NFPA 70 Article 430",
+    "Variador de velocidad - ASME B30.2-1.13",
+    "Resistencia de frenado dinamico - CMAA 70 Section 4.10.3",
+    "Gabinete de control electrico - NFPA 70 Article 110",
+    "Limit switch y levas - OSHA 1910.179(g)(5)",
+    "Sensores de sobrecarga - CMAA 70 Section 4.2.2"
   ],
-  "Sistema Mecanico de Puente": [
-    "Riel",
-    "Topes mecanicos y de hule",
-    "Ruedas motrices y giratorias",
-    "Flechas y chumaceras",
-    "Reductor (caja de engranes)",
-    "Pinon",
-    "Nivel de aceite de reductor",
-    "Balatas",
-    "Ajuste de freno",
-    "Tornilleria",
-    "Etiqueta capacidad",
-    "Cabezales/endtrucks"
+  "Sistema mecanico de puente": [
+    "Riel - CMAA 70 Section 3.2",
+    "Topes mecanicos y de hule - OSHA 1910.179(e)(2)",
+    "Ruedas motrices y giratorias - CMAA 70 Section 5.2.4",
+    "Flechas y chumaceras - CMAA 70 Section 5.2.2",
+    "Reductor (caja de engranes) - CMAA 70 Section 5.2.5",
+    "Pinon - CMAA 70 Section 5.2.5.1",
+    "Nivel de aceite de reductor - CMAA 70 Section 5.2.5.2",
+    "Balatas - OSHA 1910.179(f)(4)",
+    "Ajuste de freno - ASME B30.2-1.7.2",
+    "Tornilleria - CMAA 70 Section 5.2.3",
+    "Etiqueta capacidad - OSHA 1910.179(b)(5)",
+    "Cabezales/endtrucks - CMAA 70 Section 3.4"
   ],
-  "Sistema Electrico de Puente": [
-    "Freno electromagnetico",
-    "Motor electrico",
-    "Contactores",
-    "Variador de velocidad",
-    "Resistencia frenado dinamico",
-    "Limit switch y levas",
-    "Gabinete de control electrico"
+  "Sistema electrico de puente": [
+    "Freno electromagnetico - OSHA 1910.179(f)(4)",
+    "Motor electrico - OSHA 1910.179(g)(1)",
+    "Contactores - NFPA 70 Article 430",
+    "Variador de velocidad - ASME B30.2-1.13",
+    "Resistencia frenado dinamico - CMAA 70 Section 4.10.3",
+    "Limit switch y levas - OSHA 1910.179(g)(5)",
+    "Gabinete de control electrico - NFPA 70 Article 110"
   ],
-  "Sistema de Festoon": [
-    "Riel C",
-    "Soportes de riel C",
-    "Carretillas",
-    "Topes",
-    "Hangers",
-    "Uniones",
-    "Cable plano/redondo de fuerza",
-    "Cable plano/redondo de control",
-    "Gabinetes de interconexion",
-    "Brazo de arrastre"
+  "Sistema de festoon": [
+    "Riel C - CMAA 70 Section 4.7",
+    "Soportes de riel C - CMAA 70 Section 4.7.3",
+    "Carretillas - CMAA 70 Section 4.7.3",
+    "Topes - CMAA 70 Section 4.7.3",
+    "Hangers - CMAA 70 Section 4.7.3",
+    "Uniones - CMAA 70 Section 4.7.3",
+    "Cable plano/redondo de fuerza - NFPA 70 Article 610",
+    "Cable plano/redondo de control - NFPA 70 Article 610",
+    "Gabinetes de interconexion - NFPA 70 Article 110",
+    "Brazo de arrastre - CMAA 70 Section 4.7"
   ],
-  "Sistema de Mando de Grua": [
-    "Botonera",
-    "Cable de botonera",
-    "Caja de interconexiones",
-    "Radiocontrol",
-    "Cabina",
-    "Asiento de operador",
-    "Palancas de mando de cabina",
-    "Paro de emergencia"
+  "Sistema de mando de grua": [
+    "Botonera - OSHA 1910.179(g)(2)",
+    "Cable de botonera - NFPA 70 Article 610",
+    "Caja de interconexiones - NFPA 70 Article 110",
+    "Radiocontrol - ASME B30.2-2.2.4",
+    "Cabina - OSHA 1910.179(b)(2)",
+    "Asiento de operador - OSHA 1910.179(b)(2)",
+    "Palancas de mando de cabina - OSHA 1910.179(g)(2)",
+    "Paro de emergencia - OSHA 1910.179(n)(3)"
   ],
-  "Alimentacion Electrica de Grua": [
-    "Interruptor de grua",
-    "Desconectador electrico",
-    "Bus electrico de la grua",
-    "Brazos tomacorriente"
+  "Alimentacion electrica de grua": [
+    "Interruptor de grua - OSHA 1910.179(g)(1)",
+    "Desconectador electrico - NFPA 70 Article 430.102",
+    "Bus electrico de la grua - CMAA 70 Section 4.7.2",
+    "Brazos tomacorriente - CMAA 70 Section 4.7.2"
   ],
   "Accesorios": [
-    "Sirena audio-visual",
-    "Torreta estroboscopica",
-    "Escalera de acceso a grua",
-    "Bocina audible",
-    "Alumbrado"
+    "Sirena audio-visual - OSHA 1910.179(n)(3)(x)",
+    "Torreta estroboscopica - CMAA 70 Section 4.15",
+    "Escalera de acceso a grua - OSHA 1910.23",
+    "Bocina audible - OSHA 1910.179(n)(3)",
+    "Alumbrado - OSHA 1910.179(h)"
   ],
   "Estructura": [
-    "Nivelacion de columnas",
-    "Nivelacion de rieles",
-    "Torque de anclas",
-    "Cimentacion"
+    "Nivelacion de columnas - CMAA 70 Section 3.3",
+    "Nivelacion de rieles - CMAA 70 Section 3.2.3",
+    "Torque de anclas - AISC Steel Construction Manual",
+    "Cimentacion - CMAA 74 Section 2"
   ]
 };

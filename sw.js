@@ -1,10 +1,12 @@
-const CACHE_NAME = "crane-inspection-cache-v2";
+const CACHE_NAME = "crane-inspection-cache-v4";
 const APP_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
-  "./report-generator.js",`r`n  "./report-template-config.js",`r`n  "./finding-catalog-config.js",
+  "./report-generator.js",
+  "./report-template-config.js",
+  "./finding-catalog-config.js",
   "./manifest.json"
 ];
 
