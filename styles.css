@@ -397,6 +397,15 @@ textarea {
   .section-header {
     flex-direction: column;
   }
+
+  .list-card-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .danger-button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 @media print {
